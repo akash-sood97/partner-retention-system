@@ -15,6 +15,10 @@
 
 **[Read the one-page decision memo →](docs/DECISION_MEMO.md)**
 
+![Contacting the 300 partners most likely to leave loses Rs 33k; adding value and quality screening earns Rs 0.66M, matching the offer to the driver Rs 0.95M, and targeting on pilot-measured effect Rs 1.17M against a Rs 1.33M ceiling - 88% of the best achievable value.](figures/00_decision.png)
+
+*The whole decision in one picture. The three figures below repeat it as text.*
+
 | | | |
 |---|---|---|
 | **−₹33k → +₹1.17M** | **₹416k** | **about 1,200** |

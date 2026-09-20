@@ -133,6 +133,7 @@ def main():
              pct_of_oracle_driver=float(drv_val / res.loc["Oracle (true effects)", "net_value"]))
     (OUT / "summary.json").write_text(json.dumps({k: (None if (isinstance(v, float) and np.isnan(v)) else float(v)) for k, v in S.items()}, indent=2))
 
+    fig0_decision(S)
     fig1_signals(C__)
     fig2_ladder(ladder)
     fig3_calibration(C__, pC, S)
@@ -144,6 +145,40 @@ def main():
 
 
 # ----------------------------------------------------------------------------- figures
+def fig0_decision(S):
+    """The one-picture version: same capacity, four ways to choose who to contact."""
+    def draw(ax):
+        names = ["Most likely\nto leave", "+ value and\nquality", "+ matched\noffer", "+ measured\neffect"]
+        vals = [S["net_riskiest"] / 1e6, S["net_guard"] / 1e6, S["net_driver"] / 1e6, S["net_uplift"] / 1e6]
+        cols = [C_["orange"], C_["neutral"], C_["blue"], C_["aqua"]]
+        ax.bar(names, vals, color=cols, width=0.6, zorder=3)
+        ax.axhline(S["net_oracle"] / 1e6, color=C_["muted"], lw=1.4, ls=(0, (4, 3)), zorder=4)
+        ax.text(-0.42, S["net_oracle"] / 1e6 + 0.03, "perfect hindsight", fontsize=10.5,
+                color=C_["muted"], ha="left", va="bottom")
+        for i, v in enumerate(vals):
+            ax.text(i, v + (0.05 if v >= 0 else -0.05), f"{'+' if v >= 0 else '−'}₹{abs(v):.2f}M",
+                    ha="center", va="bottom" if v >= 0 else "top", fontsize=12,
+                    fontweight="bold", color=C_["ink"])
+        ax.axhline(0, color=C_["muted"], lw=1)
+        ax.set_ylim(-0.3, 1.72)
+        ax.set_ylabel("Value kept a year (₹ million)", fontsize=11.5)
+        ax.tick_params(axis="x", labelsize=11)
+        ax.tick_params(axis="y", labelsize=10.5)
+        ax.grid(axis="x", visible=False)
+
+    viz.decision_card(
+        FIG / "00_decision.png",
+        "Contacting the 300 most likely to leave loses money. "
+        "Contacting the 300 you can save earns ₹1.17M.",
+        [(f"−₹{abs(S['net_riskiest'])/1e3:.0f}k → +₹{S['net_uplift']/1e6:.2f}M",
+          "same 300-partner capacity, different choice of who"),
+         (f"{S['pct_of_oracle_uplift']*100:.0f}%", "of the best achievable value captured"),
+         (f"₹{(S['net_guard']-S['net_nog'])/1e3:.0f}k", "what the quality guardrail alone is worth")],
+        draw,
+        note="Seeded simulation with known true effects, so each policy can be scored against ground truth. Rupee figures are illustrative.",
+    )
+
+
 def fig1_signals(C):
     feats = [("jobs_trend", "Jobs per week: 12-week trend"), ("logins_trend", "Logins per week: 12-week trend"),
              ("earnings_trend", "Earnings per job: trend (relative)"), ("days_since_last_job", "Days since last job")]
